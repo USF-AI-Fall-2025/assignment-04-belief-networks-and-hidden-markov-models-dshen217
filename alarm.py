@@ -1,7 +1,7 @@
-from pgmpy.models import BayesianNetwork
+from pgmpy.models import DiscreteBayesianNetwork
 from pgmpy.inference import VariableElimination
 
-alarm_model = BayesianNetwork(
+alarm_model = DiscreteBayesianNetwork(
     [
         ("Burglary", "Alarm"),
         ("Earthquake", "Alarm"),
@@ -43,7 +43,7 @@ cpd_marycalls = TabularCPD(
     values=[[0.1, 0.7], [0.9, 0.3]],
     evidence=["Alarm"],
     evidence_card=[2],
-state_names={"Alarm":['yes','no'], "MaryCalls":['yes', 'no']},
+    state_names={"Alarm":['yes','no'], "MaryCalls":['yes', 'no']},
 )
 
 # Associating the parameters with the model structure
@@ -56,5 +56,27 @@ alarm_infer = VariableElimination(alarm_model)
 #
 #the probability of Mary Calling given that John called
 
-q = alarm_infer.query(variables=["Alarm", "Burglary"],evidence={"MaryCalls":"yes"})
-print(q)
+def main():
+    #The probability Alarm, and Burglary, given that mary called
+    q = alarm_infer.query(variables=["Alarm", "Burglary"],evidence={"MaryCalls":"yes"})
+    print("1. P(Alarm, Burglary | MaryCalls = yes): ")
+    print(q)
+    print()
+    #The probability of Mary calling given that John called
+    q1 = alarm_infer.query(variables = ["MaryCalls"], evidence = {"JohnCalls": "yes"})
+    print("2.P(MaryCalls | JohnCalls = yes): ")
+    print(q1)
+    print()
+    #The probability of both John and Mary calling given Alarm
+    q2 = alarm_infer.query(variables = ["MaryCalls", "JohnCalls"], evidence = {"Alarm": "yes"})
+    print("3.P(MaryCalls, JohnCalls | Alarm = yes): ")
+    print(q2)
+    print()
+    #The probability of Alarm, given that Mary called
+    q3 = alarm_infer.query(variables = ["Alarm"], evidence = {"MaryCalls": "yes"})
+    print("4.P(Alarm | MaryCalls = yes): ")
+    print(q3)
+    print()
+
+if __name__ == "__main__":
+    main()
